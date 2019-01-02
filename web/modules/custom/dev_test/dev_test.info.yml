@@ -1,0 +1,7 @@
+type: module
+name: Developer test
+description: 'Test new coding styles or patterns.'
+package: Custom developer suite
+core: 8.x
+dependencies:
+  - developer_suite:developer_suite

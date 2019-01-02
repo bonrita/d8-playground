@@ -1,0 +1,64 @@
+uuid: 9261922d-9a3f-4aeb-ab5b-b81fa7f73a38
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_header
+    - node.type.vacancy
+    - paragraphs.paragraphs_type.header
+  module:
+    - entity_reference_revisions
+id: node.vacancy.field_header
+field_name: field_header
+entity_type: node
+bundle: vacancy
+label: Header
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles:
+      header: header
+    target_bundles_drag_drop:
+      header:
+        enabled: true
+        weight: 13
+      link_list:
+        weight: 14
+        enabled: false
+      link_with_icon:
+        weight: 15
+        enabled: false
+      onboarding:
+        weight: 16
+        enabled: false
+      overview:
+        weight: 17
+        enabled: false
+      paragraph_with_image:
+        weight: 18
+        enabled: false
+      runner:
+        weight: 19
+        enabled: false
+      simple_text:
+        weight: 20
+        enabled: false
+      teaser_block:
+        weight: 21
+        enabled: false
+      teaser_blocks:
+        weight: 22
+        enabled: false
+      text_with_icon:
+        weight: 23
+        enabled: false
+      top_tasks:
+        weight: 24
+        enabled: false
+field_type: entity_reference_revisions

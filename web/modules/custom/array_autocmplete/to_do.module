@@ -1,0 +1,174 @@
+<?php
+
+/**
+ * THIS WAS CODE THAT WAS DONE IN BESLAAG PORTAL ABOUT AN AUTOCOMPLET FIELD THAT
+ * ONLY USES PHP TO ACCOMPLISH auto-completion.
+ * THIS IS drupal 7 code that needs to be converted to D8 code.
+ *
+ * The alternative is to use the "chosen" module that uses a JS library. THE CHOSES LIBRARY IS FAR BETTER
+ * There may no need to create a module out of this apart from learning pourposes.
+ */
+
+/**
+ * Implements hook_menu().
+ */
+function bp_status_menu(): array {
+  $items['bp-status/autocomplete'] = [
+    'title' => 'Autocomplete status',
+    'page callback' => 'bp_status_autocomplete',
+    'access arguments' => ['access content'],
+    'type' => MENU_CALLBACK,
+  ];
+
+  return $items;
+}
+
+/**
+ * Implements hook_field_widget_form().
+ */
+function bp_status_field_widget_form(array &$form, array &$form_state, array $field, array $instance, string $langcode, array $items, int $delta, array $element): array {
+  $repo = BPDataRepository::getInstance();
+  $states = $repo->getStateLabels();
+
+  $tags = [];
+  foreach ($items as $item) {
+    if (isset($states[$item['value']])) {
+      $tags[$item['value']] = $states[$item['value']];
+    }
+  }
+
+  $element += [
+    '#type' => 'textfield',
+    '#default_value' => _bp_status_implode_states($tags),
+    '#autocomplete_path' => $instance['widget']['settings']['autocomplete_path'] . '/' . $field['field_name'],
+    '#size' => $instance['widget']['settings']['size'],
+    '#maxlength' => 1024,
+    '#element_validate' => ['_bp_status_autocomplete_validate'],
+  ];
+
+  return $element;
+}
+
+/**
+ * Implodes a list of states into a string.
+ *
+ * @see drupal_explode_tags()
+ */
+function _bp_status_implode_states(array $states): string {
+  $typed_state = [];
+  foreach ($states as $state) {
+    // Commas and quotes in state names are special cases, so encode 'em.
+    if (strpos($state, ',') !== FALSE || strpos($state, '"') !== FALSE) {
+      $typed_state[] = '"' . str_replace('"', '""', $state) . '"';
+    }
+    else {
+      $typed_state[] = $state;
+    }
+  }
+  return implode(', ', $typed_state);
+}
+
+/**
+ * Form element validate handler for bp status auto complete element.
+ */
+function _bp_status_autocomplete_validate(array $element, array &$form_state): void {
+  $value = [];
+  if ($tags = $element['#value']) {
+    $repo = BPDataRepository::getInstance();
+    $states = $repo->getStateLabels();
+
+    // Translate state names into actual states.
+    $typed_states = drupal_explode_tags($tags);
+
+    foreach ($typed_states as $typed_state) {
+      // See if the state exists in the states list. If it exists, add it to the
+      // form values.
+      if ($state_key = array_search($typed_state, $states, TRUE)) {
+        $value[] = [
+          'value' => $state_key
+        ];
+      }
+
+    }
+  }
+
+  form_set_value($element, $value, $form_state);
+}
+
+/**
+ * Filter states by a pattern.
+ */
+function _bp_status_filter_states_by_pattern(string $pattern, array $input, int $flags = 0): array {
+  return array_merge(
+    array_intersect_key($input, array_flip(preg_grep($pattern, array_keys($input), $flags))),
+    preg_grep($pattern, $input, $flags)
+  );
+}
+
+/**
+ * Page callback: Outputs JSON for state autocomplete suggestions.
+ *
+ * Path: bp-status/autocomplete
+ */
+function bp_status_autocomplete(string $field_name = '', string $status_typed = ''): void {
+  // If the request has a '/' in the search text, then the menu system will have
+  // split it into multiple arguments, recover the intended $tags_typed.
+  $args = func_get_args();
+  // Shift off the $field_name argument.
+  array_shift($args);
+  $state_typed = implode('/', $args);
+
+  // Make sure the field exists and is a bp status field.
+  if (!($field = field_info_field($field_name)) || $field['type'] !== 'bp_status') {
+    // Error string. The JavaScript handler will realize this is not JSON and
+    // will display it as debugging information.
+    print t('Bp status field @field_name not found.', array('@field_name' => $field_name));
+    exit;
+  }
+
+  // The user enters a comma-separated list of states.
+  //I only auto complete the last state.
+  $state_typed = drupal_explode_tags($state_typed);
+  $tag_last = drupal_strtolower(array_pop($state_typed));
+
+  $term_matches = array();
+  if ($tag_last != '') {
+
+    $repo = BPDataRepository::getInstance();
+    $states = $repo->getStateLabels();
+
+    $tags_return = _bp_status_filter_states_by_pattern('~'.$tag_last.'~i', $states);
+
+    $prefix = count($state_typed) ? drupal_implode_tags($state_typed) . ', ' : '';
+
+    foreach ($tags_return as $tid => $name) {
+      $n = $name;
+      // State names containing commas or quotes must be wrapped in quotes.
+      if (strpos($name, ',') !== FALSE || strpos($name, '"') !== FALSE) {
+        $n = '"' . str_replace('"', '""', $name) . '"';
+      }
+      $term_matches[$prefix . $n] = check_plain($name);
+    }
+  }
+
+  drupal_json_output($term_matches);
+}
+
+/**
+ * Implements hook_field_widget_info().
+ */
+function bp_status_field_widget_info(): array {
+  return [
+    'bp_status_autocomplete' => [
+      'label' => t('Autocomplete status'),
+      'field types' => ['bp_status'],
+      'settings' => [
+        'size' => 60,
+        'autocomplete_path' => 'bp-status/autocomplete',
+      ],
+      'behaviors' => [
+        'multiple values' => FIELD_BEHAVIOR_CUSTOM,
+      ],
+    ],
+  ];
+}

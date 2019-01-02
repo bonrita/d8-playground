@@ -1,0 +1,12 @@
+mh_migration.condition_route:
+  path: '/admin/config/condition/{name}'
+  defaults:
+    _controller: '\Drupal\mh_migration\Controller\ConditionRouter::condition'
+    _title: 'Condition route'
+  requirements:
+    _access: 'TRUE'
+#  condition:  'ConditionService.calculate()'
+
+
+# Hijacking the user path
+#  condition:  'context.getPathInfo() matches "@^/user/[a-z]{3,8}=[a-z]{3,4}$@"'

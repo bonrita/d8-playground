@@ -1,0 +1,18 @@
+uuid: b20d7f38-2120-4799-a67d-d3c74e7bdde5
+langcode: nl
+status: true
+dependencies:
+  module:
+    - menu_ui
+third_party_settings:
+  menu_ui:
+    available_menus:
+      - main
+    parent: 'main:'
+name: Vacature
+type: vacancy
+description: ''
+help: ''
+new_revision: true
+preview_mode: 1
+display_submitted: true

@@ -1,0 +1,13 @@
+field.formatter.settings.modal_field_formatter:
+  type: mapping
+  label: 'Modal display format settings'
+  mapping:
+    modal_title:
+      type: string
+      label: 'Title'
+    width:
+      type: integer
+      label: 'Width'
+    label:
+      type: string
+      label: 'Label'

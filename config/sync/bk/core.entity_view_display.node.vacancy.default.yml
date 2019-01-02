@@ -1,0 +1,48 @@
+uuid: 84c5c798-e3ea-4caf-9d86-ece4b1323bb5
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.field.node.vacancy.body
+    - field.field.node.vacancy.field_header
+    - field.field.node.vacancy.field_top_tasks
+    - node.type.vacancy
+  module:
+    - entity_reference_revisions
+    - text
+    - user
+id: node.vacancy.default
+targetEntityType: node
+bundle: vacancy
+mode: default
+content:
+  body:
+    label: hidden
+    type: text_default
+    weight: 101
+    settings: {  }
+    third_party_settings: {  }
+    region: content
+  field_header:
+    weight: 103
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    type: entity_reference_revisions_entity_view
+    region: content
+  field_top_tasks:
+    weight: 102
+    label: above
+    settings:
+      view_mode: default
+      link: ''
+    third_party_settings: {  }
+    type: entity_reference_revisions_entity_view
+    region: content
+  links:
+    weight: 100
+    region: content
+hidden:
+  langcode: true

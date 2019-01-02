@@ -1,0 +1,121 @@
+<?php
+
+use Drupal\Core\Form\FormStateInterface;
+use Symfony\Component\HttpFoundation\RedirectResponse;
+use Symfony\Component\HttpFoundation\Cookie;
+use Drupal\Core\Cache\CacheableMetadata;
+
+// https://drupal.stackexchange.com/questions/197576/storing-data-session-for-anonymous-user
+//https://drupal.stackexchange.com/questions/204989/how-to-give-iframe-in-form-elements-in-d8
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function mh_migration_form_user_login_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+
+  $form["actions"]["hcp"] = [
+    '#type' => 'submit',
+    '#value' => 'HCP',
+  ];
+
+  $form["#validate"] = ['_mh_migration_hcp_check'];
+}
+
+function _mh_migration_hcp_check($form, FormStateInterface $form_state) {
+
+  \Drupal\Core\Cache\Cache::invalidateTags(['hcp']);
+  $response = new \Drupal\Core\Cache\CacheableRedirectResponse('/');
+  $request = \Drupal::request();
+  // Save the session so things like messages get saved.
+
+  $request->getSession()->set('hcp-mode', '');
+
+  $request->getSession()->save();
+  $response->prepare($request);
+
+  $response->addCacheableDependency((new CacheableMetadata())->addCacheContexts([
+    'hcp',
+  ]));
+
+  // Make sure to trigger kernel events.
+  \Drupal::service('kernel')->terminate($request, $response);
+  $response->send();
+
+}
+
+/**
+ * Implements hook_form_FORM_ID_alter().
+ */
+function mh_migration_form_menu_link_content_menu_link_content_form_alter(&$form, FormStateInterface $form_state, $form_id) {
+  $menu_link = $form_state->getFormObject()->getEntity();
+
+  if ($menu_link) {
+    $bundle = $menu_link->get('menu_name')->first()->getValue()['value'];
+    $menu_link_options = $menu_link->link->first()->options ?: [];
+  }
+
+
+  if ('main' === $bundle) {
+
+    $form['options']['attributes'] = [
+      '#type' => 'details',
+      '#title' => t('Attributes'),
+      '#weight' => -3,
+      //            '#tree' => TRUE,
+    ];
+
+    $form['options']['menu_item_disable'] = [
+      '#type' => 'checkbox',
+      '#title' => t('HCP'),
+      '#default_value' => TRUE === $menu_link_options["menu_item_disable"],
+    ];
+
+    $form['actions']['submit']['#submit'][] = '_mh_migration_menu_link_content_form_submit';
+  }
+
+  $gg = 0;
+}
+
+/**
+ * Submit function for menu add / edit form.
+ */
+function _mh_migration_menu_link_content_form_submit($form, FormStateInterface $form_state) {
+  $menu_link = $form_state->getFormObject()->getEntity();
+
+  if ($menu_link->link) {
+    $menu_link_options = $menu_link->link->first()->options ?: [];
+    $menu_link_attributes = ['menu_item_disable' => (bool) $form_state->getValue('menu_item_disable')];
+
+    $menu_link_options = array_merge($menu_link_options, $menu_link_attributes);
+
+    $menu_link->link->first()->options = $menu_link_options;
+    $menu_link->save();
+
+  }
+}
+
+/**
+ * Implements template_preprocess_menu().
+ */
+function mh_migration_preprocess_menu(&$variables) {
+
+  if ('main' === $variables["menu_name"]) {
+    $user = \Drupal::currentUser();
+    foreach ($variables['items'] as $key => $item) {
+      /** @var \Drupal\Core\Menu\MenuLinkDefault $menu_link */
+      $menu_link = $item['original_link'];
+      $options = $menu_link->getOptions();
+
+      if ($options && isset($options['menu_item_disable'])) {
+        $session = \Drupal::request()->getSession();
+        $mode = $session->get('hcp-mode');
+
+        if (TRUE === $options['menu_item_disable'] && $user->id() <> 1 && 'denied' === $mode) {
+          unset($variables['items'][$key]);
+        }
+
+      }
+    }
+    $variables["#cache"]["tags"][] = 'hcp';
+  }
+
+}

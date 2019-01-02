@@ -1,0 +1,8 @@
+type: module
+name: MH migration
+description: 'MH Drupal 8 migration.'
+package: manhunt
+core: 8.x
+dependencies:
+  - drupal:migrate
+  - migrate_plus:migrate_plus

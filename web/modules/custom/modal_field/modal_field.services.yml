@@ -1,0 +1,5 @@
+services:
+  modal_field.modal_title_subscriber:
+    class: Drupal\modal_field\EventSubscriber\ModalFieldTitleSubscriber
+    tags:
+    - { name: event_subscriber }

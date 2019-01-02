@@ -1,0 +1,7 @@
+modal_field.modal:
+  path: 'modal-field/{entity_type}/{id}/{field_name}'
+  defaults:
+    _title: 'Modal'
+    _controller: '\Drupal\modal_field\Controller\ModalFieldController::modal'
+  requirements:
+    _permission: 'access content'

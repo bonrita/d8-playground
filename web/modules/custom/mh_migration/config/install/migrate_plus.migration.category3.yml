@@ -1,0 +1,39 @@
+id: category3
+migration_tags: null
+migration_group: job_vacancies
+label: 'Import categories.'
+source:
+  plugin: url
+  data_fetcher_plugin: xml_dir_concat
+  data_parser_plugin: mh_simple_xml
+  urls: /modules/custom/mh_migration/data
+  item_selector: /items/Job/Categories/Category
+  unique: true
+  fields:
+    -
+      name: category
+      label: 'Category'
+      selector: Value
+    -
+      name: remote_id
+      label: 'Category Id'
+      selector: RemoteId
+
+  ids:
+    remote_id:
+      type: integer
+process:
+  # Hardcode the destination vocabulary id.
+  vid:
+    plugin: default_value
+    default_value: categories
+  name: category
+
+destination:
+  plugin: entity:taxonomy_term
+migration_dependencies: null
+
+dependencies:
+  enforced:
+    module:
+      - mh_migration

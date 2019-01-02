@@ -1,0 +1,9 @@
+services:
+    mh_migration.condition_router:
+      class: Drupal\mh_migration\ConditionService
+#      arguments: ["@=service(Drupal\\\\Core\Config\\\\ConfigFactory).get()"]
+    cache_context.hcp:
+      class: Drupal\mh_migration\HcpCacheContext
+      arguments: ['@request_stack']
+      tags:
+        - { name: cache.context }

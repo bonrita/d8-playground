@@ -1,0 +1,21 @@
+uuid: 96b77783-a47b-4686-a6ad-45340b7cb52a
+langcode: nl
+status: true
+dependencies:
+  module:
+    - entity_reference_revisions
+    - node
+    - paragraphs
+id: node.field_top_tasks
+field_name: field_top_tasks
+entity_type: node
+type: entity_reference_revisions
+settings:
+  target_type: paragraph
+module: entity_reference_revisions
+locked: false
+cardinality: 1
+translatable: true
+indexes: {  }
+persist_with_no_fields: false
+custom_storage: false

@@ -1,0 +1,62 @@
+uuid: fdb1559f-1e06-4311-878d-217be4f0165e
+langcode: nl
+status: true
+dependencies:
+  config:
+    - field.storage.node.field_top_tasks
+    - node.type.vacancy
+  module:
+    - entity_reference_revisions
+id: node.vacancy.field_top_tasks
+field_name: field_top_tasks
+entity_type: node
+bundle: vacancy
+label: 'Top taken'
+description: ''
+required: false
+translatable: true
+default_value: {  }
+default_value_callback: ''
+settings:
+  handler: 'default:paragraph'
+  handler_settings:
+    negate: 0
+    target_bundles: null
+    target_bundles_drag_drop:
+      header:
+        weight: 13
+        enabled: false
+      link_list:
+        weight: 14
+        enabled: false
+      link_with_icon:
+        weight: 15
+        enabled: false
+      onboarding:
+        weight: 16
+        enabled: false
+      overview:
+        weight: 17
+        enabled: false
+      paragraph_with_image:
+        weight: 18
+        enabled: false
+      runner:
+        weight: 19
+        enabled: false
+      simple_text:
+        weight: 20
+        enabled: false
+      teaser_block:
+        weight: 21
+        enabled: false
+      teaser_blocks:
+        weight: 22
+        enabled: false
+      text_with_icon:
+        weight: 23
+        enabled: false
+      top_tasks:
+        weight: 24
+        enabled: false
+field_type: entity_reference_revisions

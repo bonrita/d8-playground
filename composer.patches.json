@@ -1,0 +1,7 @@
+{
+  "patches": {
+    "drupal/mollie_payment": {
+      "Site breaks when trying to access an incomplete payment": "https://www.drupal.org/files/issues/2018-11-16/return_null_response_on_empty_uri-3014226-2.patch"
+    }
+  }
+}

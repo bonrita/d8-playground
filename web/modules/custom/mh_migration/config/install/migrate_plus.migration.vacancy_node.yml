@@ -1,0 +1,46 @@
+id: vacancy_node
+migration_tags: null
+migration_group: job_vacancies
+label: 'XML feed to import a vacancy.'
+source:
+  plugin: url
+  data_fetcher_plugin: xml_rebuild
+  data_parser_plugin: simple_xml
+#  data_fetcher_plugin: http
+#  data_parser_plugin: xml
+  urls: https://www.connexys.nl/omringpublic/run/xml_feed_int.startup?p_pub_id=1&p_code=51FBC25FD26DE4800DA5292D60539ADA
+  item_selector: /Vacancies/Vacancy
+  fields:
+    -
+      name: vacancy_name
+      label: 'Node title'
+      selector: VacancyName
+    -
+      name: organisatie
+      label: 'Organisation taxonomy term'
+      selector: OrganizationUnit/name
+
+    -
+      name: vacancy_id
+      label: 'Vacation id'
+      selector: VacancyId
+
+
+  ids:
+    vacancy_id:
+      type: integer
+#    vacancy_name:
+#      type: string
+
+process:
+  title: vacancy_name
+  type:
+    plugin: default_value
+    default_value: article
+destination:
+  plugin: entity:node
+migration_dependencies: null
+dependencies:
+  enforced:
+    module:
+      - mh_migration

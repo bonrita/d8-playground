@@ -1,0 +1,85 @@
+id: jobs10
+migration_tags: null
+migration_group: job_vacancies
+label: 'Import base job set'
+source:
+  plugin: url
+  data_fetcher_plugin: xml_dir_concat
+  data_parser_plugin: mh_simple_xml
+  urls: /modules/custom/mh_migration/data
+  item_selector: /items/Job
+  fields:
+    -
+      name: remote_id
+      label: 'Remote Id'
+      selector: RemoteId
+    -
+      name: reaction_id
+      label: 'Reaction Id'
+      selector: ReactionId
+    -
+      name: title
+      label: 'Title'
+      selector: Title
+    -
+      name: category_id
+      label: 'Category id'
+      selector: Categories/Category/RemoteId
+    -
+      name: dynamic_fields
+      label: 'Dynamic field'
+      selector: DynamicFields
+    -
+      name: job_description
+      label: 'Job description'
+      selector: JobDescription
+    -
+      name: dynamic_facets
+      label: 'Dynamic facets'
+      selector: DynamicFacets
+
+
+  ids:
+    remote_id:
+      type: string
+process:
+  type:
+    plugin: default_value
+    default_value: job
+  title: title
+  uid:
+    plugin: default_value
+    default_value: 1
+  status:
+    plugin: default_value
+    default_value: 1
+  langcode:
+    plugin: default_value
+    default_value: en
+  body/value: job_description
+  body/format:
+    plugin: default_value
+    default_value: basic_html
+  field_remote_id: remote_id
+  field_reaction_id: reaction_id
+  field_category:
+    plugin: migration_lookup
+    migration: category3
+    source: category_id
+  field_dynamic_fields:
+    plugin: dynamic_field_paragraphs
+    source: dynamic_fields
+    method: create
+  field_dynamic_facets:
+    plugin: dynamic_facet_paragraphs
+    source: dynamic_facets
+    method: create
+destination:
+  plugin: 'entity:node'
+migration_dependencies:
+  required:
+    - category3
+dependencies:
+  enforced:
+    module:
+      - mh_migration
